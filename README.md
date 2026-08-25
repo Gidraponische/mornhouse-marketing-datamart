@@ -31,8 +31,9 @@
 
 ## 4. SQL-код 
 
-WITH 
+SQL**
 #1. Агрегируем расходы из cost_table
+WITH 
 costs AS (
   SELECT
     PARSE_DATE('%Y-%m-%d', date) AS date,
@@ -83,7 +84,7 @@ SELECT
   COALESCE(c.media_source, i.media_source, ar.media_source, iar.media_source) AS media_source,
   COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id, iar.campaign_id) AS campaign_id,
   
-   Метрики
+  #Метрики
   IFNULL(c.cost_usd, 0) AS cost_usd,
   IFNULL(c.clicks, 0) AS clicks,
   IFNULL(c.impressions, 0) AS impressions,
@@ -91,7 +92,7 @@ SELECT
   IFNULL(ar.ad_revenue_usd, 0) AS ad_revenue_usd,
   IFNULL(iar.in_app_revenue_usd, 0) AS in_app_revenue_usd,
   
-   Расчетные бизнес-метрики
+   #Расчетные бизнес-метрики
   (IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) AS total_revenue_usd,
   ((IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) - IFNULL(c.cost_usd, 0)) AS profit_usd,
   
@@ -114,5 +115,5 @@ FULL OUTER JOIN in_app_revenue iar
   AND COALESCE(c.media_source, i.media_source, ar.media_source) = iar.media_source 
   AND COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id) = iar.campaign_id
 ORDER BY date DESC, cost_usd DESC;
-
+**
 
