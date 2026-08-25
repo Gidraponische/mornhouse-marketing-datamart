@@ -31,7 +31,7 @@
 
 ## 4. SQL-код 
 
-SQL**
+``sql
 --1. Агрегируем расходы из cost_table
 WITH 
 costs AS (
@@ -114,5 +114,5 @@ FULL OUTER JOIN in_app_revenue iar
   AND COALESCE(c.media_source, i.media_source, ar.media_source) = iar.media_source 
   AND COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id) = iar.campaign_id
 ORDER BY date DESC, cost_usd DESC;
-**
+```
 
