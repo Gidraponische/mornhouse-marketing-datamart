@@ -55,6 +55,7 @@ installs AS (
   FROM `mornhouse-test-environment.test_app_dataset.non_org_installs_report`
   GROUP BY 1, 2, 3
 ),
+
 #3. Агрегируем доход от рекламы внутри приложения
 ad_revenue AS (
   SELECT
@@ -75,6 +76,7 @@ in_app_revenue AS (
   FROM `mornhouse-test-environment.test_app_dataset.in_app_events_report`
   GROUP BY 1, 2, 3
 )
+
 #5. Сводим все 4 источника в одну витрину
 SELECT
   COALESCE(c.date, i.date, ar.date, iar.date) AS date,
