@@ -32,7 +32,7 @@
 ## 4. SQL-код 
 
 ```sql
---1. Агрегируем расходы из cost_table
+#1. Агрегируем расходы из cost_table
 WITH 
 costs AS (
   SELECT
@@ -46,7 +46,7 @@ costs AS (
   GROUP BY 1, 2, 3
 ),
 
---2. Агрегируем установки
+#2. Агрегируем установки
 installs AS (
   SELECT
     DATE(install_date) AS date,
