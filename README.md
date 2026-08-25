@@ -57,7 +57,7 @@ installs AS (
   GROUP BY 1, 2, 3
 ),
 
---3. Агрегируем доход от рекламы внутри приложения
+#3. Агрегируем доход от рекламы внутри приложения
 ad_revenue AS (
   SELECT
     DATE(event_date) AS date,
@@ -67,7 +67,7 @@ ad_revenue AS (
   FROM `mornhouse-test-environment.test_app_dataset.ad_revenue_raw`
   GROUP BY 1, 2, 3
 ),
---4. Агрегируем доход от подписок и покупок (In-App)
+#4. Агрегируем доход от подписок и покупок (In-App)
 in_app_revenue AS (
   SELECT
     DATE(event_date) AS date,
@@ -78,12 +78,12 @@ in_app_revenue AS (
   GROUP BY 1, 2, 3
 )
 
---5. Сводим все 4 источника в одну витрину
+#5. Сводим все 4 источника в одну витрину
 SELECT
   COALESCE(c.date, i.date, ar.date, iar.date) AS date,
   COALESCE(c.media_source, i.media_source, ar.media_source, iar.media_source) AS media_source,
   COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id, iar.campaign_id) AS campaign_id,
-  --Метрики
+#Метрики
   IFNULL(c.cost_usd, 0) AS cost_usd,
   IFNULL(c.clicks, 0) AS clicks,
   IFNULL(c.impressions, 0) AS impressions,
@@ -91,7 +91,7 @@ SELECT
   IFNULL(ar.ad_revenue_usd, 0) AS ad_revenue_usd,
   IFNULL(iar.in_app_revenue_usd, 0) AS in_app_revenue_usd,
   
---Расчетные бизнес-метрики
+#Расчетные бизнес-метрики
   (IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) AS total_revenue_usd,
   ((IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) - IFNULL(c.cost_usd, 0)) AS profit_usd,
   
