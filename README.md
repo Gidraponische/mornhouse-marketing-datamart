@@ -31,7 +31,7 @@
 
 ## 4. SQL-код 
 
-``sql
+```sql
 --1. Агрегируем расходы из cost_table
 WITH 
 costs AS (
