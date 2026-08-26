@@ -108,5 +108,5 @@ ORDER BY date DESC, cost_usd DESC;
 ``
 
 ---
-##.5 Дашборд с фильтрами
+## 5. Дашборд с фильтрами
 [https://datastudio.google.com/s/rjnWCi8Gjis](url)
