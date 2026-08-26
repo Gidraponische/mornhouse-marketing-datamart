@@ -109,7 +109,7 @@ ORDER BY date DESC, cost_usd DESC;
 
 ---
 ## 5. Дашборд
-[https://datastudio.google.com/s/rjnWCi8Gjis](url)
+## [https://datastudio.google.com/s/rjnWCi8Gjis](url)
 
 
 ## 6. Ключевые выводы и рекомендации
