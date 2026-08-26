@@ -32,13 +32,12 @@
 ## 4. SQL-код 
 
 ```sql
-#1. Агрегируем расходы из cost_table
-WITH 
-costs AS (
+#1. Расходы
+WITH costs AS (
   SELECT
-    PARSE_DATE('%Y-%m-%d', date) AS date,
+    PARSE_DATE('%Y-%m-%d', CAST(date AS STRING)) AS date,
     LOWER(TRIM(media_source)) AS media_source,
-    campaign_id,
+    TRIM(CAST(campaign_id AS STRING)) AS campaign_id,
     SUM(cost_usd) AS cost_usd,
     SUM(clicks) AS clicks,
     SUM(impressions) AS impressions
@@ -51,60 +50,52 @@ installs AS (
   SELECT
     DATE(install_date) AS date,
     LOWER(TRIM(media_source)) AS media_source,
-    campaign_id,
-    COUNT(DISTINCT appsflyer_id) AS installs
+    TRIM(CAST(campaign_id AS STRING)) AS campaign_id,
+    COUNT(install_date) AS installs
   FROM `mornhouse-test-environment.test_app_dataset.non_org_installs_report`
+  WHERE install_date IS NOT NULL
   GROUP BY 1, 2, 3
 ),
 
-#3. Агрегируем доход от рекламы внутри приложения
+#3. Доход от рекламы
 ad_revenue AS (
   SELECT
-    DATE(event_date) AS date,
+    DATE(TIMESTAMP(event_date)) AS date,
     LOWER(TRIM(media_source)) AS media_source,
-    campaign_id,
+    TRIM(CAST(campaign_id AS STRING)) AS campaign_id,
     SUM(event_revenue_usd) AS ad_revenue_usd
   FROM `mornhouse-test-environment.test_app_dataset.ad_revenue_raw`
   GROUP BY 1, 2, 3
 ),
-#4. Агрегируем доход от подписок и покупок (In-App)
+
+#4. Доход от покупок/подписок
 in_app_revenue AS (
   SELECT
-    DATE(event_date) AS date,
+    DATE(TIMESTAMP(event_date)) AS date,
     LOWER(TRIM(media_source)) AS media_source,
-    campaign_id,
+    TRIM(CAST(campaign_id AS STRING)) AS campaign_id,
     SUM(event_revenue_usd) AS in_app_revenue_usd
   FROM `mornhouse-test-environment.test_app_dataset.in_app_events_report`
   GROUP BY 1, 2, 3
 )
 
-#5. Сводим все 4 источника в одну витрину
+#5. Итоговое объединение
 SELECT
   COALESCE(c.date, i.date, ar.date, iar.date) AS date,
   COALESCE(c.media_source, i.media_source, ar.media_source, iar.media_source) AS media_source,
   COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id, iar.campaign_id) AS campaign_id,
-#Метрики
   IFNULL(c.cost_usd, 0) AS cost_usd,
   IFNULL(c.clicks, 0) AS clicks,
   IFNULL(c.impressions, 0) AS impressions,
   IFNULL(i.installs, 0) AS installs,
   IFNULL(ar.ad_revenue_usd, 0) AS ad_revenue_usd,
   IFNULL(iar.in_app_revenue_usd, 0) AS in_app_revenue_usd,
-  
-#Расчетные бизнес-метрики
   (IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) AS total_revenue_usd,
   ((IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)) - IFNULL(c.cost_usd, 0)) AS profit_usd,
-  
-  SAFE_DIVIDE(
-    (IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)), 
-    c.cost_usd
-  ) AS roas
-
+  SAFE_DIVIDE((IFNULL(ar.ad_revenue_usd, 0) + IFNULL(iar.in_app_revenue_usd, 0)), c.cost_usd) AS roas
 FROM costs c
 FULL OUTER JOIN installs i 
-  ON c.date = i.date 
-  AND c.media_source = i.media_source 
-  AND c.campaign_id = i.campaign_id
+  ON c.date = i.date AND c.media_source = i.media_source AND c.campaign_id = i.campaign_id
 FULL OUTER JOIN ad_revenue ar 
   ON COALESCE(c.date, i.date) = ar.date 
   AND COALESCE(c.media_source, i.media_source) = ar.media_source 
@@ -114,5 +105,4 @@ FULL OUTER JOIN in_app_revenue iar
   AND COALESCE(c.media_source, i.media_source, ar.media_source) = iar.media_source 
   AND COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id) = iar.campaign_id
 ORDER BY date DESC, cost_usd DESC;
-```
-
+``
