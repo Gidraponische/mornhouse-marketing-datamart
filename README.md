@@ -105,7 +105,7 @@ FULL OUTER JOIN in_app_revenue iar
   AND COALESCE(c.media_source, i.media_source, ar.media_source) = iar.media_source 
   AND COALESCE(c.campaign_id, i.campaign_id, ar.campaign_id) = iar.campaign_id
 ORDER BY date DESC, cost_usd DESC;
-``
+```
 
 ---
 ## 5. Дашборд с фильтрами
